@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include "ImageBasic.hpp"
  
 using namespace std;
 using namespace cv;
@@ -17,7 +18,7 @@ char* window_name = (char*)"Demo";
  */
 int main( int argc, char** argv )
 {
-
+    imageBasic();
     /// 读取一副图片
 //    src = imread(argv[1], 1 );
     src1 = imread("./data/fruits.jpg");
@@ -29,6 +30,16 @@ int main( int argc, char** argv )
     
     // 我们可以指定数据类型
     cv::Mat src3 = Mat_<double>(3,4); // 创建 3*4 矩阵，矩阵内数据类型为 double
+    
+    // 创建不同的位图
+    cv::Mat src4(64, 64, CV_8UC3);
+    // 这里创建了 64*64 的图片，CV_8U 表示8位无符号，范围 0～255 （有符号用 8S）
+    // C3 表示 3 通道，即彩色图片
+    cv::Mat src5(4, 4, CV_8UC1); // 单通道矩阵
+    cv::Mat src6(4, 4, CV_8U); // 与上面等价，默认是单通道
+    // 注意，这里的类型只能用 OpenCV 定义的数据类型，不能用 double, float 等
+    // 而在之前的 Mat_<double>(3,4) 中，不能使用 OpenCV 定义的数据类型！
+    
 
     /// 将图片转成灰度图片
     cvtColor(src2, src_gray, COLOR_RGB2GRAY);
