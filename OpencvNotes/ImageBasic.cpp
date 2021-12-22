@@ -136,7 +136,112 @@ void imageBasic1()
     // Mat 类型与常数进行运算，结果保留 Mat 的数据类型
     
     // (2) 矩阵与矩阵运算
+    cv::Mat a26 = (cv::Mat_<double>(2, 2) << 1, 2, 3, 4);
+    cv::Mat a27 = (cv::Mat_<double>(2, 2) << 4, 3, 2, 1);
+    cv::Mat a28, a29;
+    a28 = a26 + a27; // 对应元素相加
+    // std::cout << a28 << std::endl;
+    // [5, 5;
+    // 5, 5]
+    a29 = a26 - a27; // 对应元素相减
+    // std::cout << a29 << std::endl;
+    // [-3, -1;
+    // 1, 3]
     
+    cv::Mat a30 = (cv::Mat_<double>(2, 3) << 1, 2, 3, 4, 5, 6);
+    cv::Mat a31 = (cv::Mat_<double>(3, 2) << 6, 5, 4, 3, 2, 1);
+    cv::Mat a32;
+    a32 = a30 * a31; // 矩阵乘法，要求前一个矩阵的 列数 = 后一个矩阵的 行数
+    // std::cout << a32 << std::endl;
+    // [20, 14;
+    // 56, 41]
     
+    cv::Mat a33 = (cv::Mat_<double>(2, 3) << 6, 5, 4, 3, 2, 1);
+    double a34;
+    a34 = a30.dot(a33); // 两个矩阵被展开成向量，然后计算内积，返回的是 double 值
+    // std::cout << a34 << std::endl;
+    // 56
+    // 注意，这里两个矩阵必须维度完全相同，仅仅保证展开成向量后长度相同是不够的！！！
+    // 比如 a30 和 a31 计算 dot() 就会报错
+    
+    cv::Mat a35 = (cv::Mat_<double>(2, 3) << 2, 2, 2, 1, 1, 1);
+    cv::Mat a36 = (cv::Mat_<double>(2, 3) << 2.1, 2, 2, 1.1, 1, 1);;
+    cv::Mat a37;
+    a37 = a36.mul(a35); // 对应元素相乘
+    // std::cout << a37 << std::endl;
+    // [4.2, 4, 4;
+    //  1.1, 1, 1]
+    // 注意：
+    // 这里两个 Mat 内的元素类型，维度必须都相同！！！
+    // 另外需要注意，相乘后超出类型的取值范围，数据溢出问题，比如图像输出超过 255 会输出 255
+    
+    // 2.1.4 Mat 元素读取
+    // Mat 的存储方式：
+    // 第1个元素的所有通道数据，第2个元素的所有通道数据。。。。
+    // Mat 类变量常用属性：
+    cv::Mat a38 = cv::Mat::ones(2, 2, CV_8UC3);
+    // std::cout << "size: " << a38.size << std::endl;
+    // size: 2 x 2
+    // 维度
+    // std::cout << "type(): " << a38.type() << std::endl;
+    // type(): 16
+    // 类型，CV_8U 类型为0，CV_8S 类型为1
+    // std::cout << "cols: " << a38.cols << std::endl;
+    // cols: 2
+    // std::cout << "rows: " << a38.rows << std::endl;
+    // rows: 2
+    // std::cout << "step: " << a38.step << std::endl;
+    // step: 6
+    // 矩阵宽度（字节），这里一行 2 个元素 ，无符号整型，3 通道，即 2*1*3=6
+    // 注：1个字节是8位，如果是32位的类型，则是4个字节
+    // std::cout << "elemSize(): " << a38.elemSize() << std::endl;
+    // elemSize(): 3
+    // 每个元素大小（字节），一个元素 3 通道，无符号整型，即 3*1=3
+    // std::cout << "total(): " << a38.total() << std::endl;
+    // total(): 4
+    // 元素个数
+    // std::cout << "channels: " << a38.channels() << std::endl;
+    // channels: 3
+    // 通道数
+    
+    // 1. at 方法读取
+    cv::Mat a39 = (cv::Mat_<uchar>(2, 2) << 1, 2, 3, 4);
+    int a40 = (int)a39.at<uchar>(0, 1);
+    // std::cout << a40 << std::endl;
+    // 2
+    // 注意：
+    // at 后面的数据类型必须和矩阵元素的数据类型一致，否则会报错
+    
+    // 针对 3 通道，一个元素包含 3 个值，有专门的变量对应
+    // cv::Vec3b, cv::Vec3s, cv::Vec3w, cv::Vec3d, cv::Vec3f, cv::Vec3i
+    // 3 表示通道数，b表示uchar，s表示short，w表示ushort
+    // d表示double，f表示float，i表示int
+    // 2 通道和 4 通道只要替换对应的数字即可
+    cv::Mat a41(3, 3, CV_8UC3, cv::Scalar(1, 2, 3));
+    cv::Vec3b a42 = a41.at<cv::Vec3b>(1, 2); // 这里每个元素包含 3 个通道
+    int first = (int)a42.val[0]; // 这里序号从 0 开始
+    int second = (int)a42.val[1];
+    int third = (int)a42.val[2];
+    // std::cout << first << std::endl;
+    // 1
+    // std::cout << second << std::endl;
+    // 2
+    // std::cout << third << std::endl;
+    // 3
+    // 这里我的理解是 int 占4个字节32位，所以对应的是 CV_32S
+    // uchar 对应 CV_8U 占1个字节8位，范围 0～255，一般图像数据在这个范围
+    
+    // 2. ptr 指针方法读取
+    cv::Mat a43(3, 4, CV_8UC3, cv::Scalar(1, 2, 3));
+    
+    // 3. 迭代器读取
+    
+    // 4. 地址定位读取
+    
+}
+
+// 2.2 图像读取，显示
+void imageBasic2()
+{
     
 }
