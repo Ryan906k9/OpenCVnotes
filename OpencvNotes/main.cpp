@@ -18,7 +18,7 @@ char* window_name = (char*)"Demo";
  */
 int main( int argc, char** argv )
 {
-    imageBasic();
+    imageBasic1();
     /// 读取一副图片
 //    src = imread(argv[1], 1 );
     src1 = imread("./data/fruits.jpg");

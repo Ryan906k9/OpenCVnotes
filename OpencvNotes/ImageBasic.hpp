@@ -10,6 +10,6 @@
 
 #include <stdio.h>
 
-void imageBasic();
+void imageBasic1();
 
 #endif /* ImageBasic_hpp */
