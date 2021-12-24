@@ -188,8 +188,10 @@ void imageBasic1()
     // 类型，CV_8U 类型为0，CV_8S 类型为1
     // std::cout << "cols: " << a38.cols << std::endl;
     // cols: 2
+    // 矩阵有 2 列
     // std::cout << "rows: " << a38.rows << std::endl;
     // rows: 2
+    // 矩阵有 2 行
     // std::cout << "step: " << a38.step << std::endl;
     // step: 6
     // 矩阵宽度（字节），这里一行 2 个元素 ，无符号整型，3 通道，即 2*1*3=6
@@ -233,10 +235,57 @@ void imageBasic1()
     
     // 2. ptr 指针方法读取
     cv::Mat a43(3, 4, CV_8UC3, cv::Scalar(1, 2, 3));
+    for (int i = 0; i < a43.rows; i++) // 遍历矩阵的行
+    {
+        uchar* ptr = a43.ptr<uchar>(i); // 获得对应行的开头地址（指针）
+        for (int j = 0; j < a43.cols * a43.channels(); j++) // 遍历列
+        {
+            // std::cout << (int)ptr[j] << std::endl; // 每次 j 向后移动一个字节
+        }
+    }
+    // 注意：
+    // 这里取行的时候，需要指定元素类型 <uchar>，使用圆括号
+    // 在行中遍历元素的时候，需要用方括号
+    // 始终要记住，这里存储数据是一个元素的多个通道都存好了，再下一个元素这样的顺序！
+    
+    // std::cout << (int)a43.ptr<uchar>(2)[4] << std::endl;
+    // 也可以直接读取对应行列序号对应的值，这里超出范围编译不会报错，所以要注意！
     
     // 3. 迭代器读取
+    // Mat 类的变量是容器变量，所以拥有迭代器
+    cv::MatIterator_<cv::Vec3b> it = a43.begin<cv::Vec3b>();
+    cv::MatIterator_<cv::Vec3b> it_end = a43.end<cv::Vec3b>();
+    for (int i = 0; it != it_end; it++)
+    {
+        std::cout << (cv::Vec3b)(*it);
+        if ((++i % a43.cols) == 0)
+        {
+            // std::cout << std::endl;
+        }
+    }
+    // 输出结果：
+    // [1, 2, 3][1, 2, 3][1, 2, 3][1, 2, 3]
+    // [1, 2, 3][1, 2, 3][1, 2, 3][1, 2, 3]
+    // [1, 2, 3][1, 2, 3][1, 2, 3][1, 2, 3]
+    
+    // 注意，这里大多数的教学课程里面有个错误
+    cv::MatIterator_<uchar> it2 = a43.begin<uchar>();
+    cv::MatIterator_<uchar> it2_end = a43.end<uchar>();
+    for (int i = 0; it2 != it2_end; it2++)
+    {
+        std::cout << (int)(*it2);
+        if ((++i % a43.cols) == 0)
+        {
+            // std::cout << std::endl;
+        }
+    }
+    // 输出结果：
+    // 1111
+    // 1111
+    // 1111
     
     // 4. 地址定位读取
+    
     
 }
 
