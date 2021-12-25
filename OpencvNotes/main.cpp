@@ -18,24 +18,30 @@ char* window_name = (char*)"Demo";
  */
 int main( int argc, char** argv )
 {
-    imageBasic1();
+//    2.1 存储图像的容器
+//    imageBasic1();
+//    2.2 图像读取，显示
+//    imageBasic2();
+//    2.3 加载视频，调用摄像头
+    imageBasic3();
+    
+    
+    
     /// 读取一副图片
 //    src = imread(argv[1], 1 );
-    src1 = imread("./data/fruits.jpg");
-    src2 = src1;
-    
-    
+//    src1 = imread("./data/fruits.jpg");
+//    src2 = src1;    
 
     /// 将图片转成灰度图片
-    cvtColor(src2, src_gray, COLOR_RGB2GRAY);
-    namedWindow(window_name, WINDOW_AUTOSIZE);
-    imshow(window_name, src_gray);
-
-    while(true) {
-        int c;
-        c = waitKey(20);
-        if (27 == (char) c) {
-            break;
-        }
-    }
+//    cvtColor(src2, src_gray, COLOR_RGB2GRAY);
+//    namedWindow(window_name, WINDOW_AUTOSIZE);
+//    imshow(window_name, src_gray);
+//
+//    while(true) {
+//        int c;
+//        c = waitKey(20);
+//        if (27 == (char) c) {
+//            break;
+//        }
+//    }
 }

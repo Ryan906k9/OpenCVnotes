@@ -11,5 +11,7 @@
 #include <stdio.h>
 
 void imageBasic1();
+void imageBasic2();
+void imageBasic3();
 
 #endif /* ImageBasic_hpp */

@@ -209,7 +209,7 @@ void imageBasic1()
     // 1. at 方法读取
     cv::Mat a39 = (cv::Mat_<uchar>(2, 2) << 1, 2, 3, 4);
     int a40 = (int)a39.at<uchar>(0, 1);
-    // std::cout << a40 << std::endl;
+    std::cout << a40 << std::endl;
     // 2
     // 注意：
     // at 后面的数据类型必须和矩阵元素的数据类型一致，否则会报错
@@ -224,11 +224,11 @@ void imageBasic1()
     int first = (int)a42.val[0]; // 这里序号从 0 开始
     int second = (int)a42.val[1];
     int third = (int)a42.val[2];
-    // std::cout << first << std::endl;
+    std::cout << first << std::endl;
     // 1
-    // std::cout << second << std::endl;
+    std::cout << second << std::endl;
     // 2
-    // std::cout << third << std::endl;
+    std::cout << third << std::endl;
     // 3
     // 这里我的理解是 int 占4个字节32位，所以对应的是 CV_32S
     // uchar 对应 CV_8U 占1个字节8位，范围 0～255，一般图像数据在这个范围
@@ -240,7 +240,7 @@ void imageBasic1()
         uchar* ptr = a43.ptr<uchar>(i); // 获得对应行的开头地址（指针）
         for (int j = 0; j < a43.cols * a43.channels(); j++) // 遍历列
         {
-            // std::cout << (int)ptr[j] << std::endl; // 每次 j 向后移动一个字节
+            std::cout << (int)ptr[j] << std::endl; // 每次 j 向后移动一个字节
         }
     }
     // 注意：
@@ -248,7 +248,7 @@ void imageBasic1()
     // 在行中遍历元素的时候，需要用方括号
     // 始终要记住，这里存储数据是一个元素的多个通道都存好了，再下一个元素这样的顺序！
     
-    // std::cout << (int)a43.ptr<uchar>(2)[4] << std::endl;
+    std::cout << (int)a43.ptr<uchar>(2)[4] << std::endl;
     // 也可以直接读取对应行列序号对应的值，这里超出范围编译不会报错，所以要注意！
     
     // 3. 迭代器读取
@@ -260,7 +260,7 @@ void imageBasic1()
         std::cout << (cv::Vec3b)(*it);
         if ((++i % a43.cols) == 0)
         {
-            // std::cout << std::endl;
+            std::cout << std::endl;
         }
     }
     // 输出结果：
@@ -276,7 +276,7 @@ void imageBasic1()
         std::cout << (int)(*it2);
         if ((++i % a43.cols) == 0)
         {
-            // std::cout << std::endl;
+            std::cout << std::endl;
         }
     }
     // 输出结果：
@@ -285,12 +285,195 @@ void imageBasic1()
     // 1111
     
     // 4. 地址定位读取
-    
-    
+    int a44;
+    int row_index = 2, col_index = 3, channel_index = 2;
+    a44 = (int)(*(a43.data + a43.step[0] * row_index + a43.step[1] * col_index + channel_index));
+    std::cout << a44 <<std::endl;
+    // 输出：
+    // 3
+    // 表示第 3 行，第 4 列， 第 3 通道的值
+    // 注意：
+    // step[i]: 表示每一维元素的大小，单位字节
+    // step[0]: 表示第一维，即一行元素的大小，即矩阵宽度
+    // step[1]: 表示第二维，即一个元素的大小，即通道数（元素宽度）
 }
 
 // 2.2 图像读取，显示
 void imageBasic2()
 {
+//    2.2.1 图像读取 imread
+//    cv::Mat cv::imread(const String & filename, int flags = IMREAD_COLOR)
+    cv::Mat image1 = cv::imread("./aero881.jpg", 0); // 该图片不存在
+    if (image1.empty())
+    {
+        std::cout << "error" << std::endl;
+    }
+//    图片不存在，或者错误，empty() 的值为 1，否则为 0
+    image1 = cv::imread("./data/aero1.jpg", 0);
+    if (image1.empty())
+    {
+        std::cout << "error" << std::endl;
+    } else {
+        std::cout << "get" << std::endl;
+    }
+//    falgs标识位：
+//    一共有 13 种，可用 "|" 声明多个（不冲突情况下）
+//    enum      cv::ImreadModes {
+//      cv::IMREAD_UNCHANGED = -1, 保留 Alpha 通道
+//      cv::IMREAD_GRAYSCALE = 0, 转为单通道灰度图
+//      cv::IMREAD_COLOR = 1, 转为 3 通道 BGR
+//      cv::IMREAD_ANYDEPTH = 2, 保留原深度（16位/32位），默认转为 8位
+//      cv::IMREAD_ANYCOLOR = 4, 以任意可能的颜色读取
+//      cv::IMREAD_LOAD_GDAL = 8, 使用 gdal 驱动加载图像
+//      cv::IMREAD_REDUCED_GRAYSCALE_2 = 16, 转灰度，缩小为 1/2
+//      cv::IMREAD_REDUCED_COLOR_2 = 17, 转3通道，缩小为 1/2
+//      cv::IMREAD_REDUCED_GRAYSCALE_4 = 32, 转灰度，缩小为 1/4
+//      cv::IMREAD_REDUCED_COLOR_4 = 33, 转3通道，缩小为 1/4
+//      cv::IMREAD_REDUCED_GRAYSCALE_8 = 64, 转灰度，缩小为 1/8
+//      cv::IMREAD_REDUCED_COLOR_8 = 65, 转3通道，缩小为 1/8
+//      cv::IMREAD_IGNORE_ORIENTATION = 128 不以 EXIF 方向旋转
+//    }
+//    注意：
+//    读取不同格式图片需要对应的图片解码器
+//    windows 和 mac 中 opencv 一般都带有：libjpeg, libpng, libtiff, libjasper
+//    可以读取 jpg, jpeg, jpe, png, tiff, tif 后缀的图片
+//    linux 中需要自行安装解码器
+//    另外：
+//    能否读取图片，还是看图片的格式，不是后缀，比如后缀 .png 的图片改成 .exe，依然可以被解码读取
+//    另外：默认图像像素数小于 2^30，如果超过，需要修改系统变量 OPENCV_IO_MAX_IMAGE_PIXELS
     
+//    2.2.2 图像窗口 namedWindow
+//    void cv::namedWindow(const String & winname, int flags = WINDOW_AUTOSIZE)
+    cv::namedWindow("my first image", 1);
+//    flags 标识：
+//    一共 8 种，可用 "|" 声明多个（不冲突情况下）
+//    enum      cv::WindowFlags {
+//      cv::WINDOW_NORMAL = 0x00000000, 允许用户随意调整窗口大小
+//      cv::WINDOW_AUTOSIZE = 0x00000001, 根据图像大小设定窗口大小，用户无法调整
+//      cv::WINDOW_OPENGL = 0x00001000, 创建支持 OpenGL 的窗口
+//      cv::WINDOW_FULLSCREEN = 1, 全屏显示
+//      cv::WINDOW_FREERATIO = 0x00000100, 调整图像尺寸去满足窗口
+//      cv::WINDOW_KEEPRATIO = 0x00000000, 保持图像比例
+//      cv::WINDOW_GUI_EXPANDED =0x00000000, 窗口允许添加工具栏和状态栏
+//      cv::WINDOW_GUI_NORMAL = 0x00000010 没有工具栏和状态栏的窗口
+//    }
+//    默认加载标识为："WINDOW_AUTOSIZE | WINDOW_KEEPRATIO | WINDOW_GUI_EXPANDED"
+    
+//    注意：
+//    如果已经有同名窗口，不执行操作
+//    窗口会占用内存，请在不需要的时候关闭以释放内存：cv::destroyWindow() 和 cv::destroyAllWindows()
+//    另外：不知道是否 Mac 系统的原因，设置了 WINDOW_AUTOSIZE 后依然可以拖拽改变窗口大小！
+//    看上面的 8 种情况，如果 flag 设置为 1，其实等同于 0x00000001，即 WINDOW_AUTOSIZE
+//    所以这里虽然有 8 种，但是我估计是 opencv 开发团队进行的预留，其实还没开发完成。
+    
+//    2.2.3 显示图像 imshow
+//    void cv::imshow(const String & winname, InputArray mat)
+    cv::imshow("my first image", image1);
+//    这里必须设置 waitKey()，否则 imshow 的执行后会直接关闭，用户看不到执行结果
+    cv::waitKey(0);
+//  waitKey() 的输入值为以毫秒计数的等待时长，如果设置为 0，则表示等到用户按键才结束
+    
+    
+}
+
+//    2.3 加载视频，调用摄像头
+void imageBasic3()
+{
+//    2.3.1 读取视频数据
+//    使用 VideoCapture 类
+//    cv::VideoCapture::VideoCapture(); // 默认的构造函数
+//    cv::VideoCapture::VideoCapture(const String & filename, int apiPreference = CAP_ANY);
+//    第二种构造函数可以读取：视频文件，图像序列，视频流 URL
+//    图像序列要求格式：“前缀+数字”，调用格式：“前缀+%02d”
+//    比如 image_00.jpg, image_01.jpg, image_02.jpg，加载时用 image_%02d.jpg
+//    是否读取文件成功，可以通过 isOpened() 函数判断，成功返回 true
+    
+//    通过 >> 操作符，可以将视频类变量 VideoCapture 赋值给图像类 Mat
+//    所有视频数据都赋值完成后，再进行赋值会为空，可以用 empty() 判断是否赋值完成
+    
+//    我们可以用 VideoCapture 变量的 get() 函数查看视频的属性
+//    cv::VideoCapture::get(int propId)
+//    多达 56 种属性，详情可以查阅 opencv document
+//    常用的有：
+//    cv::CAP_PROP_POS_MSEC =0, 视频文件当前位置（毫秒）
+//    cv::CAP_PROP_POS_FRAMES =1, 下一帧的序号（0开始）
+//    cv::CAP_PROP_POS_AVI_RATIO =2, 视频相对位置（0=开始，1=结束）
+//    cv::CAP_PROP_FRAME_WIDTH =3, 视频图像宽度
+//    cv::CAP_PROP_FRAME_HEIGHT =4, 视频图像高度
+//    cv::CAP_PROP_FPS =5, 视频帧率（x帧/秒）
+//    cv::CAP_PROP_FOURCC =6, 视频解码器的 4 位代码
+//    cv::CAP_PROP_FRAME_COUNT =7, 视频的总帧数
+//    cv::CAP_PROP_FORMAT =8, Mat 对象的格式，比如 CV_16SC3
+//    cv::CAP_PROP_MODE =9, 指示当前捕捉模式（后端指定）
+//    cv::CAP_PROP_BRIGHTNESS =10, 图像亮度（仅适用于支持的相机）
+//    cv::CAP_PROP_CONTRAST =11, 图像对比度（仅适用于相机）
+//    cv::CAP_PROP_SATURATION =12, 图像饱和度（仅适用于相机）
+//    cv::CAP_PROP_HUE =13, 图像色调（仅适用于相机）
+//    cv::CAP_PROP_GAIN =14, 图像增益（仅适用于支持的相机）
+    
+//    cv::VideoCapture video1("./data/Megamind.avi");
+//    if (video1.isOpened())
+//    {
+//        std::cout << "width: " << video1.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
+//        std::cout << "height: " << video1.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
+//        std::cout << "FPS: " << video1.get(cv::CAP_PROP_FPS) << std::endl;
+//        std::cout << "frames: " << video1.get(cv::CAP_PROP_FRAME_COUNT) << std::endl;
+////    width: 720
+////    height: 528
+////    FPS: 23.976
+////    frames: 270
+//    }
+//    else
+//    {
+//        std::cout << "Error, please check the video file!" << std::endl;
+//    }
+//    while(true)
+//    {
+//        cv::Mat single_frame;
+//        video1 >> single_frame;
+//        if (single_frame.empty())
+//        {
+//            break;
+//        }
+//        cv::imshow("video images", single_frame);
+//        cv::waitKey(1000 / video1.get(cv::CAP_PROP_FPS));
+//        // FPS 帧率表示每秒（1000毫米）显示几帧
+//        // 所以 1000/FPS 表示每一帧图片展示的时间，即切换图片的时间
+//        // 这样展示图片就可以按照原来视频的速度进行播放了！
+//    }
+//    cv::waitKey();
+    
+//    2.3.2 调用摄像头
+//    cv::VideoCapture::VideoCapture(int index, int apiPreference = CAP_ANY)
+    cv::VideoCapture video2(0);
+    if (video2.isOpened())
+    {
+        std::cout << "width: " << video2.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
+        std::cout << "height: " << video2.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
+        std::cout << "FPS: " << video2.get(cv::CAP_PROP_FPS) << std::endl;
+        std::cout << "frames: " << video2.get(cv::CAP_PROP_FRAME_COUNT) << std::endl;
+//    width: 1280
+//    height: 720
+//    FPS: nan 摄像头捕捉的视频没有FPS
+//    frames: 0 也不会有总的帧数
+    }
+    else
+    {
+        std::cout << "Error, please check the camera!" << std::endl;
+    }
+    while(true)
+    {
+        cv::Mat cam_frame;
+        video2 >> cam_frame;
+        cv::imshow("camera images", cam_frame);
+        int k;
+        k = cv::waitKey(10);
+        // 1000/FPS=10 表示每一帧图片展示的时间，即 FPS=100
+        if ((char)k == 27) // ASCII码为27的键（esc键）
+        {
+            break;
+        }
+    }
+    
+    return;
 }
