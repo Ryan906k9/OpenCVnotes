@@ -23,16 +23,17 @@ int main( int argc, char** argv )
 //    2.2 图像读取，显示
 //    imageBasic2();
 //    2.3 加载视频，调用摄像头
-    imageBasic3();
+//    imageBasic3();
+//    2.4 保存数据
+    imageSave();
     
     
     
-    /// 读取一副图片
-//    src = imread(argv[1], 1 );
+//    /// 读取一副图片
 //    src1 = imread("./data/fruits.jpg");
-//    src2 = src1;    
-
-    /// 将图片转成灰度图片
+//    src2 = src1;
+//
+//    /// 将图片转成灰度图片
 //    cvtColor(src2, src_gray, COLOR_RGB2GRAY);
 //    namedWindow(window_name, WINDOW_AUTOSIZE);
 //    imshow(window_name, src_gray);

@@ -411,41 +411,42 @@ void imageBasic3()
 //    cv::CAP_PROP_HUE =13, 图像色调（仅适用于相机）
 //    cv::CAP_PROP_GAIN =14, 图像增益（仅适用于支持的相机）
     
-//    cv::VideoCapture video1("./data/Megamind.avi");
-//    if (video1.isOpened())
-//    {
-//        std::cout << "width: " << video1.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
-//        std::cout << "height: " << video1.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
-//        std::cout << "FPS: " << video1.get(cv::CAP_PROP_FPS) << std::endl;
-//        std::cout << "frames: " << video1.get(cv::CAP_PROP_FRAME_COUNT) << std::endl;
-////    width: 720
-////    height: 528
-////    FPS: 23.976
-////    frames: 270
-//    }
-//    else
-//    {
-//        std::cout << "Error, please check the video file!" << std::endl;
-//    }
-//    while(true)
-//    {
-//        cv::Mat single_frame;
-//        video1 >> single_frame;
-//        if (single_frame.empty())
-//        {
-//            break;
-//        }
-//        cv::imshow("video images", single_frame);
-//        cv::waitKey(1000 / video1.get(cv::CAP_PROP_FPS));
-//        // FPS 帧率表示每秒（1000毫米）显示几帧
-//        // 所以 1000/FPS 表示每一帧图片展示的时间，即切换图片的时间
-//        // 这样展示图片就可以按照原来视频的速度进行播放了！
-//    }
-//    cv::waitKey();
+    cv::VideoCapture video1("./data/Megamind.avi");
+    if (video1.isOpened())
+    {
+        std::cout << "width: " << video1.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
+        std::cout << "height: " << video1.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
+        std::cout << "FPS: " << video1.get(cv::CAP_PROP_FPS) << std::endl;
+        std::cout << "frames: " << video1.get(cv::CAP_PROP_FRAME_COUNT) << std::endl;
+//    width: 720
+//    height: 528
+//    FPS: 23.976
+//    frames: 270
+    }
+    else
+    {
+        std::cout << "Error, please check the video file!" << std::endl;
+    }
+    while(true)
+    {
+        cv::Mat single_frame;
+        video1 >> single_frame;
+        if (single_frame.empty())
+        {
+            break;
+        }
+        cv::imshow("video images", single_frame);
+        cv::waitKey(1000 / video1.get(cv::CAP_PROP_FPS));
+        // FPS 帧率表示每秒（1000毫米）显示几帧
+        // 所以 1000/FPS 表示每一帧图片展示的时间，即切换图片的时间
+        // 这样展示图片就可以按照原来视频的速度进行播放了！
+    }
+    cv::waitKey();
     
 //    2.3.2 调用摄像头
 //    cv::VideoCapture::VideoCapture(int index, int apiPreference = CAP_ANY)
     cv::VideoCapture video2(0);
+//    这里的 0 表示摄像头的 ID（从0开始）
     if (video2.isOpened())
     {
         std::cout << "width: " << video2.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
@@ -476,4 +477,74 @@ void imageBasic3()
     }
     
     return;
+}
+
+//    2.4 保存数据
+void imageSave()
+{
+//    2.4.1  保存图片
+//    使用 imwrite() 函数
+//    bool cv::imwrite(const String & filename, InputArray img, const std::vector<int>& params = std::vector<int>())
+//    保存成功返回 true
+//    通常保存的是 8 位单通道/3通道BGR彩色图片
+//    设定不同图片后缀可以对应不同的 图像位数：
+//    16 位无符号（CV_16U），保存为 png, jpeg, tiff
+//    32 位浮点（CV_32F)，保存为 pfm, tiff, OpenEXR, Radiance HDR
+//    4 通道（包含 Alpha 通道），保存为 png
+    
+    cv::Mat mat(480, 640, CV_8UC4); // 创建包含 alpha 通道的矩阵
+    //
+    // 以下部分在 opencv 官方案例中被包成了一个单独的函数 paintAlphaMat，用于生成一个渐变色的图片（包含BGRA这四个通道）
+    //
+    CV_Assert(mat.channels()  == 4);
+    for (int i = 0; i < mat.rows; ++i)
+    {
+        for (int j = 0; j < mat.cols; ++j)
+        {
+            cv::Vec4b& bgra = mat.at<cv::Vec4b>(i, j); // 取得一个像素点的所有通道
+            bgra[0] = UCHAR_MAX; // Blue
+            bgra[1] = cv::saturate_cast<uchar>((float (mat.cols - j)) / ((float)mat.cols) * UCHAR_MAX); // Green
+            bgra[2] = cv::saturate_cast<uchar>((float (mat.rows - i)) / ((float)mat.rows) * UCHAR_MAX); // Red
+            bgra[3] = cv::saturate_cast<uchar>(0.5 * (bgra[1] + bgra[2])); // Alpha
+        }
+    }
+    //
+    //
+    //
+    // 以下部分用于设置 imwrite() 的第三个参数
+    std::vector<int> compression_params; // 需要是一个 vector<int>，包含2个元素
+    compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION); // 第一个元素是标志，表示要改什么
+    compression_params.push_back(9); // 第二个元素是标志参数，表示要改到什么程度
+//    可选标志：
+//    官方文档中罗列了 19 种，常见的如下
+//    IMWRITE_JPEG_QUALITY // 设定 JPEG 的图片质量，0～100，默认 95
+//    IMWRITE_JPEG_PROGRESSIVE // 增强 JPEG，0/1，默认 false
+//    IMWRITE_JPEG_OPTIMIZE // 优化 JPEG，0/1，默认 false
+//    IMWRITE_JPEG_LUMA_QUALITY // JPEG 分离的亮度质量等级，0～100，默认0（不使用）
+//    IMWRITE_JPEG_CHROMA_QUALITY // JPEG 单独的色度质量等级，0～100，默认0
+//    IMWRITE_PNG_COMPRESSION // PNG 的压缩级别，0～9，默认 1
+//    IMWRITE_TIFF_COMPRESSION // TIFF 的压缩方案，可参考 libtiff，CV_32F 图像默认使用 SGILOG 模式，其他默认 LZW 模式
+
+    bool result = false; // 初始化结果
+    try
+    {
+        result = cv::imwrite("./alpha.png", mat, compression_params);
+    }
+    catch (const cv::Exception& ex)
+    {
+        fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
+    }
+    if (result)
+        printf("Saved PNG file with alpha data.\n");
+    else
+        printf("ERROR: Can't save PNG file.\n");
+    
+    std::vector<cv::Mat> imgs; // 创建一个向量存放 Mat
+    imgs.push_back(mat);
+    imgs.push_back(~mat);
+    imgs.push_back(mat(cv::Rect(0, 0, mat.cols / 2, mat.rows / 2)));
+    cv::imwrite("./test.tiff", imgs); // 将多张图片存放到 tiff 文件
+    printf("Multiple files saved in test.tiff\n");
+
+    
 }

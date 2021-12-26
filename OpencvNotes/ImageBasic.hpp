@@ -13,5 +13,6 @@
 void imageBasic1();
 void imageBasic2();
 void imageBasic3();
+void imageSave();
 
 #endif /* ImageBasic_hpp */
