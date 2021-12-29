@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<mat type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>3</cols>
+  <dt>u</dt>
+  <data>
+    1 1 1 1 1 1 1 1 1</data></mat>
+<float>1.0100000381469727e+01</float>
+<string>great</string>
+<array>
+  1 3 8</array>
+<Jack>
+  <age>18</age>
+  <time>
+    1 45 36</time></Jack>
+</opencv_storage>

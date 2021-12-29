@@ -1,5 +1,5 @@
 //
-//  ImageBasic.cpp
+//  imageBasic.cpp
 //  OpencvNotes
 //  第二章 数据载入，显示，保存
 //  Created by Ray on 2021/12/21.
@@ -7,13 +7,13 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/gapi/own/types.hpp>
-#include "ImageBasic.hpp"
+#include "imageBasic.hpp"
 #include <iostream>
 
 //using namespace std;
 
 // 2.1 存储图像的容器
-void imageBasic1()
+void ImageBasic1()
 {
     cv::Mat src1;
     src1 = cv::imread("./data/fruits.jpg");
@@ -299,7 +299,7 @@ void imageBasic1()
 }
 
 // 2.2 图像读取，显示
-void imageBasic2()
+void ImageBasic2()
 {
 //    2.2.1 图像读取 imread
 //    cv::Mat cv::imread(const String & filename, int flags = IMREAD_COLOR)
@@ -377,7 +377,7 @@ void imageBasic2()
 }
 
 //    2.3 加载视频，调用摄像头
-void imageBasic3()
+void ImageBasic3()
 {
 //    2.3.1 读取视频数据
 //    使用 VideoCapture 类
@@ -480,9 +480,9 @@ void imageBasic3()
 }
 
 //    2.4 保存数据
-void imageSave()
-{
 //    2.4.1  保存图片
+void SaveImage()
+{
 //    使用 imwrite() 函数
 //    bool cv::imwrite(const String & filename, InputArray img, const std::vector<int>& params = std::vector<int>())
 //    保存成功返回 true
@@ -514,7 +514,9 @@ void imageSave()
     // 以下部分用于设置 imwrite() 的第三个参数
     std::vector<int> compression_params; // 需要是一个 vector<int>，包含2个元素
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION); // 第一个元素是标志，表示要改什么
+    // 这里表示 PNG 的压缩
     compression_params.push_back(9); // 第二个元素是标志参数，表示要改到什么程度
+    // 这里表示 PNG 最高的压缩级别
 //    可选标志：
 //    官方文档中罗列了 19 种，常见的如下
 //    IMWRITE_JPEG_QUALITY // 设定 JPEG 的图片质量，0～100，默认 95
@@ -529,6 +531,7 @@ void imageSave()
     try
     {
         result = cv::imwrite("./alpha.png", mat, compression_params);
+        // 写入图片，成功后返回值为 true
     }
     catch (const cv::Exception& ex)
     {
@@ -546,5 +549,188 @@ void imageSave()
     cv::imwrite("./test.tiff", imgs); // 将多张图片存放到 tiff 文件
     printf("Multiple files saved in test.tiff\n");
 
+}
+
+//    2.4.2  保存视频
+void SaveVideo()
+{
+//    使用 VideoWrite() 类
+//    可以用于保存多幅图片生成的视频，或者摄像头拍摄到的视频
+//    cv::VideoWriter::VideoWriter(); // 默认构造函数
+//    cv::VideoWriter::VideoWriter(const String & filename, int fourcc, double fps, Size frameSize, bool isColor=true)
     
+//    通过默认构造函数，可以创建一个数据流，
+//    然后通过 open() 函数设置保存的文件名，编码器，帧数等参数
+    
+//    第二种构造函数中，fourcc 为 4 字符的视频编码器代码
+//    查询网址：https://www.fourcc.org/codecs.php
+//    常用编码器如下：
+//    VideoWriter::fourcc('D','I','V','X') // 流行的 MPEG-4 编码
+//    VideoWriter::fourcc('M','J','P','G') // 动态 JPEG 编码
+//    VideoWriter::fourcc('I','2','6','3') // Intel 实现的 H.263 编码
+    
+    cv::Mat src;
+    // 使用默认摄像头捕捉
+    cv::VideoCapture cap(0);
+    // 检查是否成功开启摄像头
+    if (!cap.isOpened()) {
+        std::cerr << "ERROR! Unable to open camera\n";
+        return;
+    }
+    
+    // 获取一帧数据，以了解其大小和类型
+    cap >> src;
+    // 检测是否获取成功
+    if (src.empty()) {
+        std::cerr << "ERROR! blank frame grabbed\n";
+        return;
+    }
+    
+    bool isColor = (src.type() == CV_8UC3);
+    // isColor 标志用于设定保存视频是否为彩色视频 true/false
+    // 这里检测摄像头捕捉到的数据是不是 3 通道的，如果是，即为彩色视频
+    //--- 初始化 VIDEOWRITER
+    cv::VideoWriter writer; // 实力化类对象
+    int codec = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');  // 选择编码器 (在运行的时候需要是可用的)
+    double fps = 25.0;                          // 设置帧率
+    std::string filename = "./live.avi";             // 文件名
+    writer.open(filename, codec, fps, src.size(), isColor);
+    // 检查是否成功
+    if (!writer.isOpened()) {
+        std::cerr << "Could not open the output video file for write\n";
+        return;
+    }
+    
+    //--- 抓取和写入的循环
+    std::cout << "Writing videofile: " << filename << std::endl
+         << "Press any key to terminate" << std::endl;
+    for (;;)
+    {
+        // 这里通过 VideoCapture::read() 函数来进行视频帧的抓取
+        if (!cap.read(src)) {
+            std::cerr << "ERROR! blank frame grabbed\n";
+            break;
+        }
+        // 抓取的数据会存放到 src 中，同时返回一个是否抓取成功的标志 true/false
+        // 如果抓取了一个空白帧，则返回 false，然后中断循环
+        
+        // 把帧数据编码成视频流
+        writer.write(src);
+
+        // 展示摄像头的实时画面
+        cv::imshow("Live", src);
+        // 如果侦测到按键行为，则跳出循环，即停止录制
+        if (cv::waitKey(5) >= 0)
+            break;
+    }
+    // VideoWriter 结构后，视频文件自动被关闭并释放
+}
+
+//    2.4.3 对 XML 和 YMAL 文件读取和保存
+void TestXMLandXMAL()
+{
+//    图像之外的 Mat 矩阵，数组，字符串等数据，可以保存为 XML 和 YMAL
+//    XML 是元标记语言，用户可以自定义标记，数据含义，隶属关系等，扩展名是 .xml
+//    YMAL 是数据为中心的语言，定义数据的方式：“变量:数值”，用缩紧代表隶属关系，扩展名为 .yml 或者 .ymal
+    
+//    使用 FileStorage 类完成 XML 和 YMAL 的读写
+//    cv::FileStorage::FileStorage(const String & filename, int flags, const String & encoding = String())
+//    文件名参数要包含后缀 .xml .yml .ymal
+    
+//    操作类型标志：
+//    READ = 0, // 读取
+//    WRITE = 1, // 写入（覆盖原数据）
+//    APPEND = 2, // 继续写入
+//    MEMORY = 4, // 写入/读取到内部缓冲区
+    
+//    编码参数：
+//    当前 UTF-16 XML 不支持，仅可使用 8-bit 编码 UTF-8 XML
+    
+//    通过 open() 函数打开文件，打开成功返回 true
+//    通过 << 操作写入文件，比如 file << "price" << 18
+//        数组用 "[]"， file << "price" << "[" << 18 << 24 << "]"
+//        隶属关系用 "{}"， file << "price" << "{"<<"a"<<7<<"b"<<8<<"}"
+//    通过 >> 操作读取文件，比如 file["price"] >> priceValue
+//        通过定义 file["price"] 的 FileNode 节点类型变量
+//        再进行对应寻址 FileNode["a"]
+//    通过 write() 函数写入文件
+//    可以写入类型：
+//    int, double, String, Mat, vector<String>
+    
+//    system("color F0"); // 修改运行程序背景和文字颜色
+    // Mac 下该指令无效，Linux 应该也是无效的，因为使用的是 termimal 命令
+    
+//    std::string fileName = "testXML.xml";
+    std::string fileName = "testYAML.yaml"; // 根据后缀名存储成对应格式
+    cv::FileStorage fileToWrite(fileName, cv::FileStorage::WRITE); // 以写入模式打开文件
+    // 存入 Mat
+    cv::Mat mat = cv::Mat::ones(3, 3, CV_8U);
+    fileToWrite.write("mat", mat);
+    // 存入浮点数
+    float f = 10.1;
+    fileToWrite << "float" << f;
+    // 存入字符串
+    std::string s = "great";
+    fileToWrite << "string" << s;
+    // 存入数组
+    fileToWrite << "array" << "[" << 1 << 3 << 8 << "]";
+    // 存入多节点数据
+    fileToWrite << "Jack" << "{" << "age" << 18 << "time" << "[" << 1 << 45 << 36 << "]" << "}";
+
+    fileToWrite.release(); // 关闭文件
+    
+    cv::FileStorage fileToRead(fileName, cv::FileStorage::READ); // 打开文件
+    // 判断是否打开成功
+    if (!fileToRead.isOpened())
+    {
+        std::cout << "Error! Check the file!" << std::endl;
+    }
+    
+    // 读取浮点数
+    float fRead;
+    fileToRead["float"] >> fRead;
+    std::cout << "float: " << fRead << std::endl;
+    
+    // 读取字符串
+    std::string sRead;
+    sRead = (std::string)fileToRead["string"];
+    // 用等号 = 赋值，必须指明数据类型 (std::string)
+    std::cout << "string: " << sRead << std::endl;
+    
+    // 读取数组（含有多数据的节点）
+    cv::FileNode fileNode = fileToRead["array"];
+    std::cout << "array: ";
+    // 循环遍历读取
+    for (cv::FileNodeIterator i = fileNode.begin(); i != fileNode.end(); ++i)
+    {
+        int x;
+        *i >> x;
+        std::cout << x << " ";
+    }
+    std::cout << std::endl;
+    
+    // 读取 Mat 矩阵
+    cv::Mat mRead;
+    fileToRead["mat"] >> mRead;
+    std::cout << "mat: " << mRead << std::endl;
+    
+    // 读取隶属关系的结构
+    cv::FileNode fileNode1 = fileToRead["Jack"];
+    int age = fileNode1["age"];
+    std::cout << "Jack:" << std::endl
+    << "age: " << age << std::endl;
+    std::cout << "time: ";
+    for (int i = 0; i < 3; i++)
+    {
+        int y = (int)fileNode1["time"][i];
+        std::cout << y;
+        if (i==2)
+        {
+            break;
+        }
+        std::cout << ":";
+    }
+    std::cout << std::endl;
+    // 关闭文件
+    fileToRead.release();
 }

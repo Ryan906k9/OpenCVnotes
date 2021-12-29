@@ -3,7 +3,10 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
-#include "ImageBasic.hpp"
+#include "imageBasic.hpp"
+#include "imageConv.hpp"
+#include "noiseGeneration.hpp"
+#include "linearFiltering.hpp"
  
 using namespace std;
 using namespace cv;
@@ -19,15 +22,40 @@ char* window_name = (char*)"Demo";
 int main( int argc, char** argv )
 {
 //    2.1 存储图像的容器
-//    imageBasic1();
+//    ImageBasic1();
 //    2.2 图像读取，显示
-//    imageBasic2();
+//    ImageBasic2();
 //    2.3 加载视频，调用摄像头
-//    imageBasic3();
+//    ImageBasic3();
 //    2.4 保存数据
-    imageSave();
+//    2.4.1 保存图片
+//    SaveImage();
+//    2.4.2 保存视频
+//    SaveVideo();
+//    2.4.3 对 XML 和 YMAL 文件操作
+//    TestXMLandXMAL();
     
     
+//    3 图像的基本操作
+//    3.1 图像色彩空间
+    
+//    5 图像滤波
+//    5.1 图像卷积
+//    TestImageConv();
+//    5.2 噪声的生成
+//    5.2.1 椒盐噪声
+//    generateSaltAndPepperNoise();
+//    5.2.2 高斯噪声
+//    generateGaussNoise();
+//    5.3 线性滤波
+//    5.3.1 均值滤波
+//    TestMeanFilter();
+//    5.3.2 方框滤波
+//    TestBoxFilter();
+//    5.3.3 高斯滤波
+    TestGaussFilter();
+//    5.3.4 可分离滤波
+    TestSepFilter();
     
 //    /// 读取一副图片
 //    src1 = imread("./data/fruits.jpg");
